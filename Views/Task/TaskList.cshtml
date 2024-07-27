@@ -1,0 +1,300 @@
+﻿@model List<TaskList>
+@{
+    ViewData["Title"] = "Task List";
+}
+<partial name="~/Views/Shared/_DatatableCssLinkPartial.cshtml" />
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6 my-1">
+                <h1>Task Management</h1>
+            </div>
+            <div class="col-sm-6 col-12 my-1">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index"><i class="fa fa-home mx-2"></i></a></li>
+                    <li class="breadcrumb-item">Task Management</li>
+                    <li class="breadcrumb-item"><a >Task List</a></li>
+                </ol>
+            </div>
+        </div>
+        <div class="col-md-12">
+                @if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "1")
+                {
+                    <div class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-check"></i> Success!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+                else if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "-1")
+                {
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+            </div>
+    </div>
+</section>
+<!-- Main content -->
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title  my-2">Task List</h3>
+            @{ 
+                <div class="card-tools d-flex justify-content-end">
+                        <a asp-action="AddTask" asp-controller="Task" class="btn btn-primary mr-2">Add New Task</a>
+                    <div id="taskTableActions"></div>
+                </div>
+            }
+          
+        </div>
+        <div class="card-body">
+            <table id="TaskList" class="table custom-border-bottom">
+                <thead>
+                    <tr>
+                        <th>SrNo</th>
+                        <th>Task Name</th>
+                        <th>Assignee</th>
+                        <th>Repoter</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th class="d-none">Notes</th>
+                        <th>Status</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int srno = 1;
+                        if(Model is not null){
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@srno</td>
+                                    <td>@item.TaskName</td>
+                                    <td>@item.Reporter</td>
+                                    <td>@item.Assignee</td>
+                                    <td>@item.StartDate</td>
+                                    <td>@item.EndDate</td>
+                                    <td class="d-none">@item.Notes</td>
+                                    @if (item.Status == 0)
+                                    {
+                                        <td><h6><span class="badge badge-info">Open</span></h6></td>
+                                    }
+                                    else if (item.Status == 1)
+                                    {
+                                        <td><h6><span class="badge badge-warning">InProcess</span></h6></td>
+                                    }
+                                    else if (item.Status == 2)
+                                    {
+                                        <td><h6><span class="badge badge-success">Complete</span></h6></td>
+                                    }
+                                    @if (item.Active == 1)
+                                    {
+                                        <td><h6><span class="badge badge-primary">Active</span></h6></td>
+                                    }
+                                    else if (item.Active == 0)
+                                    {
+                                        <td><h6><span class="badge badge-danger">Inactive</span></h6></td>
+                                    }
+                                    <td>
+                                        <div class="tableActionsButtons">
+                                        @{
+                                                @if (item.Active == 1)
+                                                {
+                                                        <a class="btn btn-danger btn-sm deleteTask"
+                                                   asp-action="DeleteTask" asp-controller="Task" asp-route-ID="@item.ID" title="Delete">
+                                                    <i class="fa fa-trash"></i>
+                                                    </a>
+                                                }
+
+                                                    <a class="btn btn-success btn-sm modifyTask"
+                                                   asp-action="UpdateTask" asp-controller="Task" asp-route-ID="@item.ID" title="Modify">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                                
+                                                <a class="btn btn-info btn-sm download"
+                                                   asp-action="DownloadPdf" asp-controller="Task" asp-route-ID="@item.ID" title="Download PDF">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+
+                                            <a class="btn btn-warning btn-sm NotesButton" title="View Notes">
+                                                <i class="fa fa-sticky-note"></i>
+                                                </a>
+                                            }
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                srno++;
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="modal-default-Notes" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Notes</h4>
+                <button type="button" class="close btnClose" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" rows="5" readonly autocomplete="off" id="NotesText"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+    </div>
+</section>
+
+
+@section Scripts {
+
+    <partial name="~/Views/Shared/_DatatableJsLinkPartial.cshtml" />
+    <script src="~/lib/AppJS/Task/TaskList.js" asp-append-version="true"></script>
+
+    <script asp-add-nonce="true">
+        $(document).ready(function(){
+                $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+
+        let table = $("#TaskList").DataTable({
+
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+
+            "dom": '<"table-upper-buttons" <f> <l> > <"my-2 table-responsive"t> <"table-lower-buttons" <i> <p> >',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel mr-2"></i>Excel',
+                    titleAttr: 'Export as Excel',
+                    className: 'btn btn-secondary rounded mr-2 btn-copy',
+                    filename: 'TMS - TaskList',
+                    exportOptions: {
+                        columns: []
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
+                    titleAttr: 'Export as PDF',
+                    className: 'btn btn-secondary rounded mr-2 btn-copy',
+                        filename: 'TMS - TaskList',
+                    exportOptions: {
+                        columns: []
+                    },
+                    customize: function (doc)
+                    {
+                        //Remove the title created by datatTables
+                        doc.content.splice(0, 1);
+
+                        // https://github.com/bpampuch/pdfmake#getting-started
+                        // Set page margins [left,top,right,bottom] or [horizontal,vertical]
+                        // or one number for equal spread
+                        // It's important to create enough space at the top for a header !!!
+                        doc.pageMargins = [40, 60, 20, 30];
+                        // Set the font size fot the entire document
+                        doc.defaultStyle.fontSize = 10;
+                        // Set the fontsize for the table header
+                        doc.styles.tableHeader.fontSize = 10;
+
+                        doc['header'] = (function ()
+                        {
+                            return {
+                                columns: [
+                                    {
+                                        alignment: 'center',
+                                        italics: true,
+                                        text: 'Task List - TMS',
+                                        fontSize: 18,
+                                        margin: [0, 0]
+                                    }
+                                ],
+                                margin: 20
+                            }
+                        });
+
+                        // Change dataTable layout (Table styling)
+                        // To use predefined layouts uncomment the line below and comment the custom lines below
+                        // doc.content[0].layout = 'lightHorizontalLines'; // noBorders , headerLineOnly
+                        let objLayout = {};
+                        objLayout['hLineWidth'] = function (i) { return .5; };
+                        objLayout['vLineWidth'] = function (i) { return .5; };
+                        objLayout['hLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['vLineColor'] = function (i) { return '#aaa'; };
+                        objLayout['paddingLeft'] = function (i) { return 4; };
+                        objLayout['paddingRight'] = function (i) { return 4; };
+                        doc.content[0].layout = objLayout;
+                    }
+                }],
+        });
+        // append exports buttons of datatable to div
+        table.buttons().container().appendTo('#taskTableActions:eq(0)');
+
+        $(document).on("click", ".NotesButton", function () {
+                $('#NotesText').val("");
+                $('#modal-default-Notes').modal('show');
+                var data_row = table.row($(this).closest('tr')).data();
+                console.log(data_row);
+                $('#NotesText').val(data_row[6]);
+            });
+
+
+             $(document).on("click", ".changePassword", function (event)
+    {
+        if (!confirm('Do you want to change password?'))
+        {
+            event.preventDefault(); // Prevent the default behavior
+            return false;
+        }
+        let data_row = table.row($(this).closest('tr')).data();
+         let linkUrl = '@Url.Action("GetResetUserPasswordLink", "Login")';
+        $('.loading').show();
+        $.ajax({
+            type: "GET",
+            url: linkUrl + '?email=' + data_row[2],
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data)
+            {
+                alert(data);
+                $('.loading').hide();
+                return true;
+            },
+            error: function ()
+            {
+                console.log("Error occurred while generating user password link");
+                $('.loading').hide();
+                return false;
+            }
+        });
+    });
+
+        })
+    </script>
+
+    }
+

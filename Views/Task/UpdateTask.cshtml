@@ -1,0 +1,161 @@
+﻿@model AddTask
+@{
+    ViewData["Title"] = "Update Task";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Task Management</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index"><i class="fa fa-home mx-2"></i></a></li>
+                    <li class="breadcrumb-item">Task Management</li>
+                    <li class="breadcrumb-item"><a asp-controller="Task" asp-action="TaskList">Task List</a></li>
+                    <li class="breadcrumb-item">Update task</li>
+                </ol>
+            </div>
+
+            <div class="col-md-12">
+                @if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "1")
+                {
+                    <div class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-check"></i> Success!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+                else if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "-1")
+                {
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Main content -->
+
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Update Task</h3>
+        </div>
+        <br />
+        <form asp-action="UpdateTask" asp-controller="Task" method="post" enctype="multipart/form-data" id="appUpdateTask" asp-antiforgery="true">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="form-floating-group floating col-md-4 my-2">
+                        <input type="email" asp-for="Reporter" class="form-control floating" placeholder=" " autocomplete="off" value="@ViewBag.Repoter" readonly>
+                        <label for="exampleInputEmail1">Reporter</label>
+                        <span asp-validation-for="Reporter" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating-group floating col-md-4 my-2">
+                        <input type="text" asp-for="TaskName" class="form-control floating emailforDB" autocomplete="off" placeholder=" ">
+                        <label for="exampleInputEmail1">Task Name</label>
+                        <span asp-validation-for="TaskName" class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                    </div>
+
+                    <div class="select2-container-wrapper  col-md-4 my-2">
+                        <div class="form-group form-floating-group floating">
+                            <select class="select2 form-control form-select floating" asp-for="Assignee">
+                                <option value="" selected disabled>Select Assignee</option>
+                                @if (ViewBag.Email != null)
+                                {
+                                    @foreach (var item in ViewBag.Email as List<string>)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </select>
+                            <label for="userType">Assignee</label>
+                            <span asp-validation-for="Assignee" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="select2-container-wrapper  col-md-4 my-2">
+                        <div class="form-group form-floating-group floating">
+                            <select class="select2 form-control form-select floating" asp-for="Status">
+                                <option value="" selected disabled>Select Status</option>
+                                <option value="0">Open</option>
+                                <option value="1">In Process</option>
+                                <option value="2">Complete</option>
+                            </select>
+                            <label for="userType">Status</label>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 my-2">
+                        <div class="form-floating-group floating">
+                            <input type="file" asp-for="AttachFile" class="form-control floating"
+                                   accept=".pdf" placeholder=" " autocomplete="off" />
+                            <label for="exampleInputEmail1">Select File</label>
+                        </div>
+                        <span asp-validation-for="AttachFile" class="text-danger"></span>
+                    </div>
+                    <input type="text" asp-for="ID" class="form-control floating d-none" autocomplete="off" placeholder=" ">
+                </div>
+                <div class="row">
+                    <div class="col-md-4 my-2">
+                        <label>Date range Filter:</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" asp-for="reservation" class="form-control float-right" id="reservation">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                    <textarea rows="4" class="form-control" asp-for="Notes" placeholder="Please enter Notes" required></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                <br>
+                <div class="card-footer d-flex justify-content-end">
+                    <a asp-controller="Task" asp-action="TaskList" class="btn btn-secondary mr-3">Back</a>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</section>
+
+@section Scripts {
+    <script src="~/lib/AppJS/Task/AddTask.js" asp-append-version="true"></script>
+
+    <script asp-add-nonce="true">
+                $(document).ready(function(){
+
+                    $('#reservation').daterangepicker({
+                        minDate: moment().startOf('day'),
+             alwaysShowCalendars: true,
+            startDate: moment(),
+            endDate: moment(),
+            locale: {
+                format: 'DD/MM/YYYY'
+            },
+        },
+            function (start, end) {
+                $('#reservation span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'))
+            }
+        );
+
+        let value = $('#reservation').val();
+
+            });
+
+
+    </script>
+}

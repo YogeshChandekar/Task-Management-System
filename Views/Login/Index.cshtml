@@ -1,0 +1,118 @@
+﻿@model AuthenticateUser
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TMSPortal | Log in </title>
+    <link rel="icon" href="~/logosficon.ico" type="image/ico" />
+    <partial name="~/Views/Shared/_LoginPageCssPartial.cshtml" />
+</head>
+<body class="hold-transition login-page overflow-auto">
+    <!-- Loader -->
+    <div class="loading">  </div>
+    <div class="row h-100 m-0">
+        <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center bg-dark px-0 login-bg">
+            <div class="login-img-section text-center">
+                <img class="img-fluid mb-3" src="~/lib/dist/img/auth-screen.webp" alt="security description" />
+                <dl class="text-white">
+                    <dt class="mb-3">Fast, Efficient and Productive</dt>
+                    <dd class="cap">Task Management Solution.</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center">
+            <div class="login-box mb-3">
+                <!-- /.login-logo -->
+                <div>
+                    <div class="text-center">
+                        @* <img class="img-fluid logo-login mb-3 mt-3" src="~/lib/dist/img/sbi-logo.png" alt="SBI"> *@
+                        <a href="#" class="h1 d-block"><b>TMS</b>Portal</a>
+                    </div>
+                    <div class="card-body">
+                        <p class="login-box-msg">Sign in to start your session</p>
+                        <form asp-action="Index" asp-controller="Login" method="post" id="appLogin" asp-antiforgery="true">
+
+                            <div class="form-floating-group floating mb-3">
+                                <input type="email" asp-for="Email" class="form-control floating" autocomplete="off" placeholder=" ">
+                                <label for="exampleInputEmail1">Email address</label>
+                                <span asp-validation-for="Email" class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                            </div>
+
+                            <div class="form-floating-group floating d-flex">
+                                <input type="password" asp-for="Password" class="form-control floating" placeholder=" ">
+                                <label for="Password">Password</label>
+                                <span class="input-group-text" id="loginPassword-toggle">
+                                    <i class="fas fa-eye-slash"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+
+                            <br>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In</button>
+
+                            <b class="text-danger">@ViewBag.Response</b>
+
+                        </form>
+
+                        <h6 class="d-flex justify-content-end text-danger my-2">@ViewBag.Alert</h6>
+
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+
+            </div>
+            <!-- /.login-box -->
+        </div>
+
+    </div>
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/lib/LoaderJs.js"></script>
+
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+    <script src="~/lib/jsencrypt.min.js"></script>
+    <script asp-add-nonce="true">
+        $(document).ready(function ()
+        {
+            var publicKey = '@Html.Raw(@GlobalOptions.PublicKey)';
+
+            $("#appLogin").on("submit", function (e) {
+                e.preventDefault();//stop submit event
+                let self = $(this);//this form
+                let isValid = self.valid();
+                if (isValid) {
+                    $('.loading').show();
+                    var publicKey = '@Html.Raw(@GlobalOptions.PublicKey)';
+                    passInput = $("#Password").val();
+                    if (passInput != null) {
+                        var encrypt = new JSEncrypt();
+                        encrypt.setPublicKey(publicKey);
+                        var encrypted = encrypt.encrypt(passInput);
+                        $("#Password").val(encrypted);
+                        $("#appLogin").off("submit");//need form submit event off.
+                        self.unbind('submit');
+                        self.submit();//submit form
+                        return true;
+                    }
+                    else {
+                        alert("Please enter password");
+                        $('.loading').hide();
+                        e.preventDefault(); // invalidates the form
+                        return false;
+                    }
+                }
+            });
+
+        })
+    </script>
+    @* External JS *@
+    <script src="~/lib/AppJS/Login/Login.js"></script>
+</body>
+</html>
+

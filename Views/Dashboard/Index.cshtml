@@ -1,0 +1,359 @@
+﻿@* @model DashboardValues *@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@*<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>*@
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Dashboard</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">Dashboard</li>
+                </ol>
+            </div><!-- /.col -->
+
+            <div class="col-md-12">
+                @if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "-1")
+                {
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">�</button>
+                        <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+            </div>
+
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+
+</div>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 ">
+                <!-- dashboard tabs  -->
+                <ul class="nav nav-tabs align-items-center pt-2 bg-white" id="custom-tabs-two-tab" role="tablist">
+
+                    <li class="nav-item px-1">
+                        <a class="nav-link active" id="custom-tabs-two-basic-tab" data-toggle="pill"
+                           href="#custom-tabs-two-basic" role="tab" aria-controls="custom-tabs-two-basic"
+                           aria-selected="true">Basic</a>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content p-4 bg-white" id="custom-tabs-two-tabContent">
+
+                    <!-- tab basic -->
+                    <div class="tab-pane fade show active" id="custom-tabs-two-basic" role="tabpanel" aria-labelledby="custom-tabs-two-basic-tab">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <!-- small box -->
+                                <div class="small-box bg-info">
+                                    <div class="inner">
+                                        <h3 class="count">10</h3>
+                                        <p>User List</p>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="fa fa-users"></i>
+                                    </div>
+                                    <a asp-controller="User" asp-action="UserList" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                            <div class="col-12 col-md-6">
+                                <!-- small box -->
+                                <div class="small-box bg-success">
+                                    <div class="inner">
+                                        <h3 class="count">10</h3>
+                                        <p>Task List</p>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="fa fa-tasks"></i>
+                                    </div>
+                                    <a asp-controller="Task" asp-action="TaskList" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- tab basic -->
+                    <!-- tab certificates-->
+                    <div class="tab-pane fade" id="custom-tabs-two-key" role="tabpanel"
+                         aria-labelledby="custom-tabs-two-key-tab">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="barchart1"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4 ">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="hbc1"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4 ">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="hbc2"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 ">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="piechart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 ">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="dchart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- tab certificates-->
+                </div>
+                <!-- dashboard tabs  -->
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ./wrapper -->
+@section Scripts{
+    <script src="~/plugins/chart.js/Chart.min.js"></script>
+    <script asp-add-nonce="true">
+        $(document).ready(function () {
+                $.ajax({
+                    type: "GET",
+                    beforeSend: function (xhr) {
+                    },
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#keysCount").text(data.kmipTotalKeys);
+                        $(".smallboxload").addClass('d-none');
+                        $("#keysTypeChart").empty();
+                        // Keys Algorithm with count not used
+                        //var element = new Chart(document.getElementById("keyAlgoCnt"), {
+                        //    type: 'doughnut',
+                        //    data: {
+                        //    labels: data.dashKeysAlgoChartData.algo,
+                        //        datasets: [
+                        //            {
+                        //                label: "Algorithm",
+                        //                backgroundColor: bgcolor1,
+                        //                data: data.dashKeysAlgoChartData.count
+                        //            }
+                        //        ]
+                        //    },
+                        //    options: {
+                        //        title: {
+                        //            display: true,
+                        //            text: 'Key Algorithm'
+                        //        }
+                        //    }
+                        //});
+
+                    },
+                    error: function () {
+                        $(".smallboxload").addClass('d-none');
+                         $("#keysCount").text(0);
+                         $("#keysTypeChart").text("Data not found");
+                    }
+                });
+            
+        });
+        $(function () {
+            $("input[data-bootstrap-switch]").each(function () {
+                $(this).bootstrapSwitch('state', $(this).prop('checked'));
+            })
+        })
+        $(".count").each(function () {
+            $(this)
+                .prop("Counter", 0)
+                .animate(
+                    {
+                        Counter: $(this).text(),
+                    },
+                    {
+                        duration: 4000,
+                        easing: "swing",
+                        step: function (now) {
+                            now = Number(Math.ceil(now)).toLocaleString('en');
+                            $(this).text(now);
+                        },
+                    }
+                );
+        });
+
+        let bgcolor1 = ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850", "#e8c3b9", "#3e95cd"];
+
+        // values of Charts
+
+        // CHART DATA values
+        @* let data1 = [3, 5, 7, 8, 9, 3, 2, 4]; //containts 7 data points for key barchart
+        let data2 = [2, 4, 5, 6, 7, 3, 5];   //containts 6 data points for key Horizontal barchart-1
+        let data3 = [3, 5, 7, 8, 9, 3, 2, 4];//containts 7 data points for key Horizontal barchart-2
+        let data4 = [10, 30, 12, 14, 15, 20,];
+        let data5 = [10, 20, 50];
+        let data7 = [10, 20, 50, 15];
+
+        // Chart Labels
+        let label1 = ["Expired", "0 - 7", "8 - 15", "16 - 30", "31-60", "61-90", "91-120"];
+        let label2 = ["invalid Cert", "Missing key uses", "Missing CSR", "Duplicate key in chain", "Missing Cert Policy", "Alias Mismatch"];
+        let label3 = ["Expired", "0 - 7", "8 - 15", "16 - 30", "31-60", "61-90", "91-120"];
+        let label4 = ["GLobalSign", "emCA", "Digicert", "Self-signed", "Unknown", "Lets - Encrypt"];
+        let label5 = ["Very Secure", "Secure", "Not Secure"];
+        let label7 = ["Web Servers", "Databases", "Cloud server providers", "KMIP Client"];
+
+        // Background Colors
+
+        // bar- Chart
+        new Chart(document.getElementById("barchart1"), {
+            type: 'bar',
+            data: {
+                labels: label1,
+                datasets: [
+                    {
+                        label: "Expiry",
+                        backgroundColor: bgcolor1,
+                        data: data1
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Certificates Expired'
+                }
+            }
+        });
+
+        // Key-Horizontal Chart-1
+        new Chart(document.getElementById("hbc1"), {
+            type: 'horizontalBar',
+            data: {
+                labels: label2,
+                datasets: [
+                    {
+                        label: "Issues",
+                        backgroundColor: bgcolor1,
+                        data: data2
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Certificates Expired'
+                }
+            }
+        });
+
+        // Key-Horizontal Chart-2
+        new Chart(document.getElementById("hbc2"), {
+            type: 'horizontalBar',
+            data: {
+                labels: label3,
+                datasets: [
+                    {
+                        label: "Days",
+                        backgroundColor: bgcolor1,
+                        data: data3
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Certificates Data in Days'
+                }
+            }
+        });
+
+        // Key-Pie chart
+        new Chart(document.getElementById("piechart"), {
+            type: 'pie',
+            data: {
+                labels: label4,
+                datasets: [{
+                    label: "Certificates",
+                    backgroundColor: bgcolor1,
+                    data: data4
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Certificates by CA'
+                }
+            }
+        });
+
+        // Key-Doughnut Chart
+        new Chart(document.getElementById("dchart"), {
+            type: 'doughnut',
+            data: {
+                labels: label5,
+                datasets: [
+                    {
+                        label: "Population (millions)",
+                        backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                        data: data5
+                    }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Certificates Analyzed by security rating - Public'
+                }
+            }
+        });
+
+
+        // Certificate pie Chart
+        new Chart(document.getElementById("c-dchart"), {
+            type: 'pie',
+            data: {
+                labels: label7,
+                datasets: [{
+                    label: "Souce",
+                    backgroundColor: bgcolor1,
+                    data: data7
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Key Sources'
+                }
+            }
+        }); *@
+    </script>
+}

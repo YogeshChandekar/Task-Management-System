@@ -1,0 +1,111 @@
+﻿@model UpdateUser
+@{
+    ViewData["Title"] = "UpdateUser -";
+}
+<link href="~/lib/jquery-multiselect/css/multiselect.css" rel="stylesheet" />
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>User Management</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index"><i class="fa fa-home mx-2"></i></a></li>
+                    <li class="breadcrumb-item">User Management</li>
+                    <li class="breadcrumb-item"><a asp-controller="User" asp-action="UserList">User List</a></li>
+                    <li class="breadcrumb-item">Update User</li>
+                </ol>
+            </div>
+                <div class="col-md-12">
+                @if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "1")
+                {
+                    <div class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-check"></i> Success!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+                else if (TempData["AlertStatus"] != null && TempData["AlertStatus"].ToString() == "-1")
+                {
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                        <strong>@TempData["AlertMessage"]</strong>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Main content -->
+
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Add User</h3>
+        </div>
+        <br />
+        <form asp-action="UpdateUser" asp-controller="User" method="post" id="appAddUser" asp-antiforgery="true">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="form-floating-group floating col-md-6 my-2">
+                        <input type="email" asp-for="Email" class="form-control floating emailforDB" autocomplete="off" placeholder=" " readonly>
+                        <label for="exampleInputEmail1">Email address</label>
+                        <span asp-validation-for="Email" class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                    </div>
+
+                    <div class="form-floating-group floating col-md-6 my-2">
+                        <input type="text" asp-for="Name" class="form-control floating" placeholder=" " autocomplete="off">
+                        <label for="exampleInputEmail1">Display Name</label>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+
+                    <div class="form-floating-group floating col-md-6 my-2">
+                        <input type="text" class="form-control floating" asp-for="ContactNo" placeholder=" " autocomplete="off">
+                        <label for="exampleInputEmail1">Mobile Number</label>
+                        <span asp-validation-for="ContactNo" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="select2-container-wrapper  col-md-6 my-2">
+                        <div class="form-group form-floating-group floating">
+                            <select class="select2 form-control form-select floating" asp-for="IsAdmin">
+                                <option value="" selected disabled>Select Role</option>
+                                <option value="0">Employee</option>
+                                <option value="1">Admin</option>
+                                <option value="2">Director</option>
+                            </select>
+                            <label for="userType">Role</label>
+                            <span asp-validation-for="IsAdmin" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <a asp-controller="User" asp-action="UserList" class="btn btn-secondary mr-3">Back</a>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</section>
+
+@section Scripts{
+    <script src="~/lib/jquery-multiselect/js/jquery.multi-select.js"></script>
+    <script src="~/lib/AppJS/User/UpdateUser.js" asp-append-version="true"></script>
+
+    <script asp-add-nonce="true">
+        
+    </script>
+}
+
+
+
+
+
